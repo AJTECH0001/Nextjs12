@@ -1,0 +1,54 @@
+import { Inter } from 'next/font/google';
+import { ConnectButton } from '@rainbow-me/rainbowkit';
+import { useAccount, useDisconnect } from 'wagmi'; 
+import { useBalance } from 'wagmi';
+import { formatEther } from 'viem';
+import { useReadContract } from 'wagmi'; 
+import { erc20Abi } from '../../contract/erc20Abi'; 
+import { readContract } from 'viem/actions';
+
+const inter = Inter({ subsets: ['latin'] });
+
+export default function Home() {
+
+	const {isConnected , isConnecting, address }  = useAccount(  )
+
+	const balance = useBalance({
+		address: address,
+	});
+
+	const { disconnect } = useDisconnect();
+
+	
+
+	const { data : Balance, isLoading ,error, isError } = useReadContract({
+			abi: erc20Abi,
+			functionName:'balanceOf',
+			args: [address],
+			address: '0x99eABb1B214Ac6Bb0fcFbcA4A426BcEBcc03C3DD',
+						
+	});
+
+    console.log('balanceOf', data); 
+
+		if  (isConnecting) return <div>Connecting...</div>;
+		if  (!isConnected) return <div>
+			<p>please connect your wallet</p>
+			<ConnectButton />
+		</div>
+	return (
+		<main className={`flex min-h-screen flex-col items-center justify-between p-24 ${inter.className}`}>
+			<p>{address}</p> 
+			{balance?.data && <p>Balance : {formatEther(balance.data?.value)}</p> };
+
+			{/* {readContractLoading && <p>Loading Balance...</p> }
+
+			{!!balance && !readContractLoading && <p>Balance of: {balance as any} </p> } */}
+			<ConnectButton />
+			<button onClick={() => disconnect()}>
+      Disconnect
+    </button>
+			
+		</main>
+	);
+}
